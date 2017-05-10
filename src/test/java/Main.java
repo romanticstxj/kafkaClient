@@ -1,6 +1,6 @@
-import com.madhouse.consumer.KafkaConsumer;
-import com.madhouse.producer.KafkaProducer;
-import com.madhouse.util.KafkaCallback;
+import com.madhouse.kafkaclient.consumer.KafkaConsumer;
+import com.madhouse.kafkaclient.producer.KafkaProducer;
+import com.madhouse.kafkaclient.util.KafkaCallback;
 
 import java.nio.ByteBuffer;
 
@@ -10,7 +10,6 @@ import java.nio.ByteBuffer;
 public class Main {
     public static void main(String[] args) {
 
-/*
         KafkaConsumer consumer = new KafkaConsumer("172.16.25.169:9092,172.16.25.180:9092,172.16.25.181:9092", "test");
 
         consumer.start("test", 7, 102400, new KafkaCallback() {
@@ -23,8 +22,7 @@ public class Main {
                 return true;
             }
         });
-*/
-        KafkaProducer producer = new KafkaProducer("172.16.25.169:9092,172.16.25.180:9092,172.16.25.181:9092", 102400, 5, 1, true, true);
+      /*  KafkaProducer producer = new KafkaProducer("172.16.25.169:9092,172.16.25.180:9092,172.16.25.181:9092", 102400, 5, 1, true, true);
 
         long count = 0;
         String message = "tttttttt";
@@ -40,7 +38,7 @@ public class Main {
                 System.out.println(ex.toString());
             }
 
-        }
+        }*/
 
     }
 }

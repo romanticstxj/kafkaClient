@@ -39,7 +39,7 @@ public class ConsumerExecutor implements Runnable {
     public ConsumerExecutor(List<KeyValuePair<String, Integer>> brokers, String groupId, String topic, int partition, int maxBufferSize, KafkaCallback callback) {
         this.brokers = brokers;
         this.topic = topic;
-        this.soTimeout = 30;
+        this.soTimeout = 30000;
         this.maxRetryTimes = 3;
         this.fetchSize = 1024;
         this.maxBufferSize = maxBufferSize;
