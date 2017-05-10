@@ -46,7 +46,7 @@ public class ConsumerExecutor implements Runnable {
         this.partition = partition;
         this.callback = callback;
         this.groupId = groupId;
-        this.clientName = String.format("consumer-%s-%d", this.topic, this.partition);
+        this.clientName = String.format("%s-%s-%d", this.groupId, this.topic, this.partition);
     }
 
     @Override
