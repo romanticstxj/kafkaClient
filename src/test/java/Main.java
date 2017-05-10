@@ -22,7 +22,7 @@ public class Main {
                 return true;
             }
         });
-      /*  KafkaProducer producer = new KafkaProducer("172.16.25.169:9092,172.16.25.180:9092,172.16.25.181:9092", 102400, 5, 1, true, true);
+       /* KafkaProducer producer = new KafkaProducer("172.16.25.169:9092,172.16.25.180:9092,172.16.25.181:9092", 102400, 5, true, true);
 
         long count = 0;
         String message = "tttttttt";
