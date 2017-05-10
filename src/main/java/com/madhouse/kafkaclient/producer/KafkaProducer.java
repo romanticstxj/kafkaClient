@@ -33,7 +33,7 @@ public class KafkaProducer {
         this.props.put("message.send.max.retries", "3");
         this.props.put("serializer.class", "kafka.serializer.StringEncoder");
         this.props.put("request.required.acks", Integer.toString(acks));
-        this.props.put("batch.num.messages", "128");
+        this.props.put("batch.num.messages", "1024");
 
         if (asyncSend) {
             this.props.put("producer.type", "async");
