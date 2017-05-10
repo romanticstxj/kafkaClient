@@ -55,6 +55,7 @@ public class ConsumerExecutor implements Runnable {
         long lastOffset = 0;
         SimpleConsumer consumer = null;
 
+        loop:
         while (!Thread.interrupted()) {
             try {
                 if (consumer == null) {
@@ -67,7 +68,7 @@ public class ConsumerExecutor implements Runnable {
                         }
                     } else {
                         if (++retryTimes > this.maxRetryTimes) {
-                            return;
+                            break loop;
                         }
 
                         Thread.sleep(1000);
@@ -85,8 +86,7 @@ public class ConsumerExecutor implements Runnable {
                 if (resp.hasError()) {
                     short code = resp.errorCode(topic, partition);
                     if (code != ErrorMapping.OffsetOutOfRangeCode()) {
-                        consumer.close();
-                        return;
+                        break loop;
                     }
 
                     lastOffset = this.getLastOffset(consumer, kafka.api.OffsetRequest.LatestTime());
@@ -94,8 +94,7 @@ public class ConsumerExecutor implements Runnable {
                     long newOffset = lastOffset;
                     for (MessageAndOffset msgAndOffset : resp.messageSet(topic, partition)) {
                         if (!this.callback.onRecv(this.topic, this.partition, msgAndOffset.offset(), msgAndOffset.message().payload())) {
-                            consumer.close();
-                            return;
+                            break loop;
                         }
 
                         newOffset = msgAndOffset.nextOffset();
@@ -114,8 +113,10 @@ public class ConsumerExecutor implements Runnable {
         }
 
         if (consumer != null) {
-            consumer.close();;
+            consumer.close();
         }
+
+        this.logger.error("consumer groupid=[{}] topic==[{}] partition=[{}] offset=[{}] thread exit.", this.groupId, this.topic, this.partition, lastOffset);
     }
 
     private KeyValuePair<String, Integer> findLeader() {

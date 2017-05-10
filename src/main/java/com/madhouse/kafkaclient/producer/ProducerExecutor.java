@@ -38,6 +38,7 @@ public class ProducerExecutor implements Runnable {
                         msgList.add(new KeyedMessage<String, String>(msg.topic, msg.key, msg.message));
                     }
 
+                    messageQueue.clear();
                     this.producer.send(msgList);
                 } else {
                     Thread.sleep(10);
