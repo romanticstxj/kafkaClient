@@ -14,7 +14,7 @@ public class Main {
 
         consumer.start("test", 7, 102400, new KafkaCallback() {
             @Override
-            public boolean onRecv(String topic, int partition, long offset, ByteBuffer message) {
+            public boolean onFetch(String topic, int partition, long offset, ByteBuffer message) {
                 byte[] buffer = new byte[message.limit()];
                 message.get(buffer);
                 String msg = new String(buffer);
@@ -22,7 +22,8 @@ public class Main {
                 return true;
             }
         });
-       /* KafkaProducer producer = new KafkaProducer("172.16.25.169:9092,172.16.25.180:9092,172.16.25.181:9092", 102400, 5, true, true);
+
+/*        KafkaProducer producer = new KafkaProducer("172.16.25.169:9092,172.16.25.180:9092,172.16.25.181:9092", 102400, 5, true);
 
         long count = 0;
         String message = "tttttttt";
