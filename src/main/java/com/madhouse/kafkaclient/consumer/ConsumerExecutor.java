@@ -63,7 +63,7 @@ public class ConsumerExecutor implements Runnable {
                     if (leader != null) {
                         retryTimes = 0;
                         consumer = new SimpleConsumer(leader.first, leader.sencond, this.soTimeout, this.maxBufferSize, this.clientName);
-                        if ((lastOffset = this.getLastOffset(consumer)) <= 0) {
+                        if ((lastOffset = this.getLastOffset(consumer, this.groupId)) <= 0) {
                             lastOffset = this.getLastOffset(consumer, kafka.api.OffsetRequest.EarliestTime());
                         }
                     } else {
@@ -93,7 +93,7 @@ public class ConsumerExecutor implements Runnable {
                 } else {
                     long newOffset = lastOffset;
                     for (MessageAndOffset msgAndOffset : resp.messageSet(topic, partition)) {
-                        if (!this.callback.onRecv(this.topic, this.partition, msgAndOffset.offset(), msgAndOffset.message().payload())) {
+                        if (!this.callback.onFetch(this.topic, this.partition, msgAndOffset.offset(), msgAndOffset.message().payload())) {
                             break loop;
                         }
 
@@ -142,10 +142,10 @@ public class ConsumerExecutor implements Runnable {
         return null;
     }
 
-    private long getLastOffset(SimpleConsumer consumer) {
+    private long getLastOffset(SimpleConsumer consumer, String groupId) {
         TopicAndPartition topicInfo = new TopicAndPartition(topic, partition);
         List<TopicAndPartition> requestInfo = Collections.singletonList(topicInfo);
-        OffsetFetchRequest req = new OffsetFetchRequest(this.groupId, requestInfo, 0, clientName);
+        OffsetFetchRequest req = new OffsetFetchRequest(groupId, requestInfo, 0, clientName);
         OffsetFetchResponse resp = consumer.fetchOffsets(req);
 
         Map<TopicAndPartition, OffsetMetadataAndError> metaData = resp.offsets();

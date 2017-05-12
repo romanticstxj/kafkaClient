@@ -23,7 +23,7 @@ public class KafkaProducer {
     private ProducerConfig config;
     private Logger logger = LogManager.getLogger(this.getClass());
 
-    public KafkaProducer(String brokers, int maxBufferSize, int maxThreadCount, boolean asyncSend, boolean autoPartitioner) {
+    public KafkaProducer(String brokers, int maxBufferSize, int maxThreadCount, boolean autoPartitioner) {
 
         this.maxThreadCount = maxThreadCount;
 
@@ -35,10 +35,7 @@ public class KafkaProducer {
         this.props.put("request.required.acks", "1");
         this.props.put("batch.num.messages", "1024");
         this.props.put("queue.buffering.max.ms", "100");
-
-        if (asyncSend) {
-            this.props.put("producer.type", "async");
-        }
+        this.props.put("producer.type", "async");
 
         if (!autoPartitioner) {
             this.props.put("partitioner.class","com.madhouse.producer.ProducerPatitioner");
