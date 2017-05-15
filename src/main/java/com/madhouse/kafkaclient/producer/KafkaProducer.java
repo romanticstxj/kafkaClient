@@ -38,7 +38,7 @@ public class KafkaProducer {
         this.props.put("producer.type", "async");
 
         if (!autoPartitioner) {
-            this.props.put("partitioner.class","com.madhouse.producer.ProducerPatitioner");
+            this.props.put("partitioner.class","com.madhouse.kafkaclient.producer.ProducerPatitioner");
         }
 
         this.config = new ProducerConfig(this.props);
