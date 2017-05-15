@@ -86,16 +86,18 @@ public class ConsumerExecutor implements Runnable {
                 if (resp.hasError()) {
                     short code = resp.errorCode(topic, partition);
                     if (code != ErrorMapping.OffsetOutOfRangeCode()) {
-                        break loop;
-                    }
-
-                    long earliestOffset = this.getLastOffset(consumer, kafka.api.OffsetRequest.EarliestTime());
-                    if (lastOffset < earliestOffset) {
-                        lastOffset = earliestOffset;
+                        consumer.close();
+                        consumer = null;
+                        this.logger.error("consumer groupid=[{}] topic==[{}] partition=[{}] offset=[{}] executor error[{}].", this.groupId, this.topic, this.partition, lastOffset, code);
                     } else {
-                        long latestOffset = this.getLastOffset(consumer, kafka.api.OffsetRequest.LatestTime());
-                        if (lastOffset > latestOffset) {
-                            lastOffset = latestOffset;
+                        long earliestOffset = this.getLastOffset(consumer, kafka.api.OffsetRequest.EarliestTime());
+                        if (lastOffset < earliestOffset) {
+                            lastOffset = earliestOffset;
+                        } else {
+                            long latestOffset = this.getLastOffset(consumer, kafka.api.OffsetRequest.LatestTime());
+                            if (lastOffset > latestOffset) {
+                                lastOffset = latestOffset;
+                            }
                         }
                     }
                 } else {
@@ -124,7 +126,7 @@ public class ConsumerExecutor implements Runnable {
             consumer.close();
         }
 
-        this.logger.error("consumer groupid=[{}] topic==[{}] partition=[{}] offset=[{}] thread exit.", this.groupId, this.topic, this.partition, lastOffset);
+        this.logger.error("consumer groupid=[{}] topic==[{}] partition=[{}] offset=[{}] executor exit.", this.groupId, this.topic, this.partition, lastOffset);
     }
 
     private KeyValuePair<String, Integer> findLeader() {
