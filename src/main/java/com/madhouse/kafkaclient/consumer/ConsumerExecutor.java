@@ -88,7 +88,7 @@ public class ConsumerExecutor implements Runnable {
                     if (code != ErrorMapping.OffsetOutOfRangeCode()) {
                         consumer.close();
                         consumer = null;
-                        this.logger.error("consumer groupid=[{}] topic==[{}] partition=[{}] offset=[{}] executor error[{}].", this.groupId, this.topic, this.partition, lastOffset, code);
+                        this.logger.error("consumer groupid=[{}] topic=[{}] partition=[{}] offset=[{}] executor error[{}].", this.groupId, this.topic, this.partition, lastOffset, code);
                     } else {
                         long earliestOffset = this.getLastOffset(consumer, kafka.api.OffsetRequest.EarliestTime());
                         if (lastOffset < earliestOffset) {
@@ -126,7 +126,7 @@ public class ConsumerExecutor implements Runnable {
             consumer.close();
         }
 
-        this.logger.error("consumer groupid=[{}] topic==[{}] partition=[{}] offset=[{}] executor exit.", this.groupId, this.topic, this.partition, lastOffset);
+        this.logger.error("consumer groupid=[{}] topic=[{}] partition=[{}] offset=[{}] executor exit.", this.groupId, this.topic, this.partition, lastOffset);
     }
 
     private KeyValuePair<String, Integer> findLeader() {
