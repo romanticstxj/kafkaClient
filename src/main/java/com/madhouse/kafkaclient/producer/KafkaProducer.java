@@ -21,6 +21,7 @@ public class KafkaProducer {
     private List<KafkaMessage> messageQueue;
     private Properties props;
     private ProducerConfig config;
+    private boolean autoPartitioner;
     private Logger logger = LogManager.getLogger(this.getClass());
 
     public KafkaProducer(String brokers, int maxBufferSize, int maxThreadCount, boolean autoPartitioner) {
@@ -37,7 +38,7 @@ public class KafkaProducer {
         this.props.put("queue.buffering.max.ms", "100");
         this.props.put("producer.type", "async");
 
-        if (!autoPartitioner) {
+        if (!(this.autoPartitioner = autoPartitioner)) {
             this.props.put("partitioner.class","com.madhouse.kafkaclient.producer.ProducerPatitioner");
         }
 
@@ -61,7 +62,7 @@ public class KafkaProducer {
     }
 
     public boolean sendMessage(String topic, byte[] message) {
-        return this.sendMessage(topic, null, new String(message));
+        return this.sendMessage(topic, this.autoPartitioner ? Long.toString(System.currentTimeMillis()) : null, new String(message));
     }
 
     public boolean sendMessage(String topic, String key, byte[] message) {
@@ -69,7 +70,7 @@ public class KafkaProducer {
     }
 
     public boolean sendMessage(String topic, String message) {
-        return this.sendMessage(topic, null, message);
+        return this.sendMessage(topic, this.autoPartitioner ? Long.toString(System.currentTimeMillis()) : null, message);
     }
 
     public boolean sendMessage(String topic, String key, String message) {
