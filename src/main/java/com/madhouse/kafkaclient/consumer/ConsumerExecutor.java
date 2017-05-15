@@ -89,7 +89,15 @@ public class ConsumerExecutor implements Runnable {
                         break loop;
                     }
 
-                    lastOffset = this.getLastOffset(consumer, kafka.api.OffsetRequest.LatestTime());
+                    long earliestOffset = this.getLastOffset(consumer, kafka.api.OffsetRequest.EarliestTime());
+                    if (lastOffset < earliestOffset) {
+                        lastOffset = earliestOffset;
+                    } else {
+                        long latestOffset = this.getLastOffset(consumer, kafka.api.OffsetRequest.LatestTime());
+                        if (lastOffset > latestOffset) {
+                            lastOffset = latestOffset;
+                        }
+                    }
                 } else {
                     long newOffset = lastOffset;
                     for (MessageAndOffset msgAndOffset : resp.messageSet(topic, partition)) {
