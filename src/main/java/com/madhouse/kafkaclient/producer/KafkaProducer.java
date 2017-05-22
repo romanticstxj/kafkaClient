@@ -22,14 +22,12 @@ public class KafkaProducer {
     private List<KafkaMessage> messageQueue;
     private Properties props;
     private ProducerConfig config;
-    private KafkaCallback callback;
     private boolean autoPartitioner;
     private Logger logger = LogManager.getLogger(this.getClass());
 
-    public KafkaProducer(String brokers, int maxBufferSize, int maxThreadCount, boolean autoPartitioner, KafkaCallback callback) {
+    public KafkaProducer(String brokers, int maxBufferSize, int maxThreadCount, boolean autoPartitioner) {
 
         this.maxThreadCount = maxThreadCount;
-        this.callback = callback;
 
         this.props = new Properties();
         this.props.put("metadata.broker.list", brokers);
@@ -51,10 +49,10 @@ public class KafkaProducer {
         this.executorService = Executors.newFixedThreadPool(this.maxThreadCount);
     }
 
-    public boolean start() {
+    public boolean start(KafkaCallback callback) {
         try {
             for (int i = 0; i < this.maxThreadCount; ++i) {
-                this.executorService.submit(new ProducerExecutor(this, this.config));
+                this.executorService.submit(new ProducerExecutor(this, this.config, callback));
             }
         } catch (Exception ex) {
             this.logger.error(ex);
@@ -106,9 +104,5 @@ public class KafkaProducer {
 
     public void stop() {
         this.executorService.shutdown();
-    }
-
-    public KafkaCallback getCallback() {
-        return this.callback;
     }
 }

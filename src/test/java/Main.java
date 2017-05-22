@@ -23,23 +23,28 @@ public class Main {
             }
         });
 
-/*        KafkaProducer producer = new KafkaProducer("172.16.25.169:9092,172.16.25.180:9092,172.16.25.181:9092", 102400, 5, true);
+        KafkaProducer producer = new KafkaProducer("172.16.25.169:9092,172.16.25.180:9092,172.16.25.181:9092", 102400, 5, true);
 
         long count = 0;
         String message = "tttttttt";
 
-        if (producer.start()) {
+        if (producer.start(new KafkaCallback() {
+            @Override
+            public void onSendError(String topic, String key, String message) {
+                super.onSendError(topic, key, message);
+            }
+        })) {
             try {
                 while (true) {
                     producer.sendMessage("test", message + count);
                     count++;
-                    Thread.sleep(100);
+                    Thread.sleep(1000);
                 }
             } catch (Exception ex) {
                 System.out.println(ex.toString());
             }
 
-        }*/
+        }
 
     }
 }

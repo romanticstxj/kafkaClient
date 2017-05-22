@@ -19,11 +19,13 @@ public class ProducerExecutor implements Runnable {
     private Producer producer;
     private ProducerConfig config;
     private Properties props;
+    private KafkaCallback callback;
     private Logger logger = LogManager.getLogger(this.getClass());
 
-    ProducerExecutor(KafkaProducer handle, ProducerConfig config) {
+    ProducerExecutor(KafkaProducer handle, ProducerConfig config, KafkaCallback callback) {
         this.handle = handle;
         this.config = config;
+        this.callback = callback;
         this.producer = new Producer(this.config);
     }
 
@@ -46,13 +48,13 @@ public class ProducerExecutor implements Runnable {
                     Thread.sleep(10);
                 }
             } catch (Exception ex) {
-                this.logger.error(ex);
-                KafkaCallback callback = this.handle.getCallback();
-                if (messageQueue != null && !messageQueue.isEmpty() && callback != null) {
+                if (messageQueue != null && !messageQueue.isEmpty() && this.callback != null) {
                     for (KafkaMessage msg : messageQueue) {
-                        callback.onSendError(msg.topic, msg.key, msg.message);
+                        this.callback.onSendError(msg.topic, msg.key, msg.message);
                     }
                 }
+
+                this.logger.error(ex);
             }
         }
     }
