@@ -4,6 +4,7 @@ package com.madhouse.kafkaclient.producer;
  * Created by WUJUNFENG on 2017/5/9.
  */
 
+import com.madhouse.kafkaclient.util.KafkaCallback;
 import kafka.producer.ProducerConfig;
 import com.madhouse.kafkaclient.util.KafkaMessage;
 
@@ -21,12 +22,14 @@ public class KafkaProducer {
     private List<KafkaMessage> messageQueue;
     private Properties props;
     private ProducerConfig config;
+    private KafkaCallback callback;
     private boolean autoPartitioner;
     private Logger logger = LogManager.getLogger(this.getClass());
 
-    public KafkaProducer(String brokers, int maxBufferSize, int maxThreadCount, boolean autoPartitioner) {
+    public KafkaProducer(String brokers, int maxBufferSize, int maxThreadCount, boolean autoPartitioner, KafkaCallback callback) {
 
         this.maxThreadCount = maxThreadCount;
+        this.callback = callback;
 
         this.props = new Properties();
         this.props.put("metadata.broker.list", brokers);
@@ -103,5 +106,9 @@ public class KafkaProducer {
 
     public void stop() {
         this.executorService.shutdown();
+    }
+
+    public KafkaCallback getCallback() {
+        return this.callback;
     }
 }

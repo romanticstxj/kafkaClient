@@ -1,5 +1,6 @@
 package com.madhouse.kafkaclient.producer;
 
+import com.madhouse.kafkaclient.util.KafkaCallback;
 import kafka.javaapi.producer.Producer;
 import kafka.producer.KeyedMessage;
 import kafka.producer.ProducerConfig;
@@ -28,23 +29,30 @@ public class ProducerExecutor implements Runnable {
 
     @Override
     public void run() {
+        List<KafkaMessage> messageQueue = null;
+
         while (!Thread.interrupted()) {
             try {
-                List<KafkaMessage> messageQueue = this.handle.getMessageQueue();
-                if (messageQueue != null && messageQueue.size() > 0) {
+                messageQueue = this.handle.getMessageQueue();
+                if (messageQueue != null && !messageQueue.isEmpty()) {
                     List<KeyedMessage> msgList = new LinkedList<>();
 
                     for (KafkaMessage msg : messageQueue) {
                         msgList.add(new KeyedMessage<String, String>(msg.topic, msg.key, msg.message));
                     }
 
-                    messageQueue.clear();
                     this.producer.send(msgList);
                 } else {
                     Thread.sleep(10);
                 }
             } catch (Exception ex) {
                 this.logger.error(ex);
+                KafkaCallback callback = this.handle.getCallback();
+                if (messageQueue != null && !messageQueue.isEmpty() && callback != null) {
+                    for (KafkaMessage msg : messageQueue) {
+                        callback.onSendError(msg.topic, msg.key, msg.message);
+                    }
+                }
             }
         }
     }
