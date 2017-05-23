@@ -62,7 +62,7 @@ public class ConsumerExecutor implements Runnable {
                     KeyValuePair<String, Integer> leader = this.findLeader();
                     if (leader != null) {
                         retryTimes = 0;
-                        consumer = new SimpleConsumer(leader.first, leader.sencond, this.soTimeout, this.maxBufferSize, this.clientName);
+                        consumer = new SimpleConsumer(leader.first, leader.second, this.soTimeout, this.maxBufferSize, this.clientName);
                         if ((lastOffset = this.getLastOffset(consumer, this.groupId)) <= 0) {
                             lastOffset = this.getLastOffset(consumer, kafka.api.OffsetRequest.EarliestTime());
                         }
@@ -132,7 +132,7 @@ public class ConsumerExecutor implements Runnable {
     private KeyValuePair<String, Integer> findLeader() {
         for (KeyValuePair<String, Integer> broker : brokers) {
             try {
-                SimpleConsumer consumer = new SimpleConsumer(broker.first, broker.sencond, this.soTimeout, this.maxBufferSize, "leaderLookup");
+                SimpleConsumer consumer = new SimpleConsumer(broker.first, broker.second, this.soTimeout, this.maxBufferSize, "leaderLookup");
                 TopicMetadataRequest req = new TopicMetadataRequest(Collections.singletonList(this.topic));
                 kafka.javaapi.TopicMetadataResponse resp = consumer.send(req);
 

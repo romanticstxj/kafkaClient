@@ -5,10 +5,10 @@ package com.madhouse.util;
  */
 public final class KeyValuePair<T1, T2> {
     public final T1 first;
-    public final T2 sencond;
-    public KeyValuePair(T1 first, T2 sencond) {
+    public final T2 second;
+    public KeyValuePair(T1 first, T2 second) {
         this.first = first;
-        this.sencond = sencond;
+        this.second = second;
     }
 
     @Override
@@ -16,7 +16,7 @@ public final class KeyValuePair<T1, T2> {
         int result = 1;
         final int prime = 31;
         result = result * prime + ((this.first != null) ? this.first.hashCode() : 0);
-        result = result * prime + ((this.sencond != null) ? this.sencond.hashCode() : 0);
+        result = result * prime + ((this.second != null) ? this.second.hashCode() : 0);
         return result;
     }
 
@@ -25,11 +25,11 @@ public final class KeyValuePair<T1, T2> {
         if (obj != null && obj instanceof KeyValuePair) {
             if (this != obj) {
                 KeyValuePair<T1, T2> that = (KeyValuePair<T1, T2>)(obj);
-                if (this.first == that.first && this.sencond == that.sencond) {
+                if (this.first == that.first && this.second == that.second) {
                     return true;
                 }
 
-                if (this.first.equals(that.first) && this.sencond.equals(that.sencond)) {
+                if (this.first.equals(that.first) && this.second.equals(that.second)) {
                     return true;
                 }
             } else {
