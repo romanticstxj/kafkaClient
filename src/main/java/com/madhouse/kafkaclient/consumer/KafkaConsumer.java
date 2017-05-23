@@ -1,7 +1,7 @@
 package com.madhouse.kafkaclient.consumer;
 
 import com.madhouse.kafkaclient.util.KafkaCallback;
-import com.madhouse.kafkaclient.util.KeyValuePair;
+import com.madhouse.util.KeyValuePair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

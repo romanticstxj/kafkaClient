@@ -1,7 +1,7 @@
 package com.madhouse.kafkaclient.consumer;
 
 import com.madhouse.kafkaclient.util.KafkaCallback;
-import com.madhouse.kafkaclient.util.KeyValuePair;
+import com.madhouse.util.KeyValuePair;
 import kafka.api.FetchRequest;
 import kafka.api.FetchRequestBuilder;
 import kafka.api.PartitionOffsetRequestInfo;

@@ -1,9 +1,9 @@
-package com.madhouse.kafkaclient.util;
+package com.madhouse.util;
 
 /**
  * Created by WUJUNFENG on 2017/5/9.
  */
-public class KeyValuePair<T1, T2> {
+public final class KeyValuePair<T1, T2> {
     public final T1 first;
     public final T2 sencond;
     public KeyValuePair(T1 first, T2 sencond) {
@@ -22,8 +22,8 @@ public class KeyValuePair<T1, T2> {
 
     @Override
     public boolean equals(Object obj) {
-        if (this != obj) {
-            if (obj != null && this.getClass() == obj.getClass()) {
+        if (obj != null && obj instanceof KeyValuePair) {
+            if (this != obj) {
                 KeyValuePair<T1, T2> that = (KeyValuePair<T1, T2>)(obj);
                 if (this.first == that.first && this.sencond == that.sencond) {
                     return true;
@@ -32,9 +32,9 @@ public class KeyValuePair<T1, T2> {
                 if (this.first.equals(that.first) && this.sencond.equals(that.sencond)) {
                     return true;
                 }
+            } else {
+                return true;
             }
-        } else {
-            return true;
         }
 
         return false;
