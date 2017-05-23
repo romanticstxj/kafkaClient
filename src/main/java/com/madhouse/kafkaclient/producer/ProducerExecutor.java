@@ -49,9 +49,7 @@ public class ProducerExecutor implements Runnable {
                 }
             } catch (Exception ex) {
                 if (messageQueue != null && !messageQueue.isEmpty() && this.callback != null) {
-                    for (KafkaMessage msg : messageQueue) {
-                        this.callback.onSendError(msg.topic, msg.key, msg.message);
-                    }
+                    this.callback.onSendError(messageQueue);
                 }
 
                 this.logger.error(ex);

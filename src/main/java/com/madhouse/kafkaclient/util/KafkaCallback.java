@@ -1,5 +1,6 @@
 package com.madhouse.kafkaclient.util;
 
+import java.util.List;
 import java.nio.ByteBuffer;
 
 /**
@@ -10,7 +11,7 @@ public abstract class KafkaCallback {
         return true;
     }
 
-    public void onSendError(String topic, String key, String message) {
+    public void onSendError(List<KafkaMessage> message) {
 
     }
 }

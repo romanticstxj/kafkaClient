@@ -1,8 +1,10 @@
 import com.madhouse.kafkaclient.consumer.KafkaConsumer;
 import com.madhouse.kafkaclient.producer.KafkaProducer;
 import com.madhouse.kafkaclient.util.KafkaCallback;
+import com.madhouse.kafkaclient.util.KafkaMessage;
 
 import java.nio.ByteBuffer;
+import java.util.List;
 
 /**
  * Created by WUJUNFENG on 2017/5/9.
@@ -23,15 +25,15 @@ public class Main {
             }
         });
 
-        KafkaProducer producer = new KafkaProducer("172.16.25.169:9092,172.16.25.180:9092,172.16.25.181:9092", 102400, 5, true);
+/*        KafkaProducer producer = new KafkaProducer("172.16.25.169:9092,172.16.25.180:9092,172.16.25.181:9092", 102400, 5, true);
 
         long count = 0;
         String message = "tttttttt";
 
         if (producer.start(new KafkaCallback() {
             @Override
-            public void onSendError(String topic, String key, String message) {
-                super.onSendError(topic, key, message);
+            public void onSendError(List<KafkaMessage> message) {
+                super.onSendError(message);
             }
         })) {
             try {
@@ -44,7 +46,7 @@ public class Main {
                 System.out.println(ex.toString());
             }
 
-        }
+        }*/
 
     }
 }
