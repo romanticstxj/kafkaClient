@@ -5,6 +5,7 @@ package com.madhouse.kafkaclient.producer;
  */
 
 import com.madhouse.kafkaclient.util.KafkaCallback;
+import kafka.producer.Partitioner;
 import kafka.producer.ProducerConfig;
 import com.madhouse.kafkaclient.util.KafkaMessage;
 
@@ -13,8 +14,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+
 
 public class KafkaProducer {
     private int maxThreadCount;
@@ -22,10 +22,9 @@ public class KafkaProducer {
     private List<KafkaMessage> messageQueue;
     private Properties props;
     private ProducerConfig config;
-    private boolean autoPartitioner;
-    private Logger logger = LogManager.getLogger(this.getClass());
+    private boolean autoPartitioner = true;
 
-    public KafkaProducer(String brokers, int maxBufferSize, int maxThreadCount, boolean autoPartitioner) {
+    public KafkaProducer(String brokers, int maxBufferSize, int maxThreadCount, Partitioner partitioner) {
 
         this.maxThreadCount = maxThreadCount;
 
@@ -39,8 +38,9 @@ public class KafkaProducer {
         this.props.put("queue.buffering.max.ms", "100");
         this.props.put("producer.type", "async");
 
-        if (!(this.autoPartitioner = autoPartitioner)) {
-            this.props.put("partitioner.class","com.madhouse.kafkaclient.producer.ProducerPatitioner");
+        if (partitioner != null) {
+            autoPartitioner = false;
+            this.props.put("partitioner.class",partitioner.getClass().getName());
         }
 
         this.config = new ProducerConfig(this.props);
@@ -55,7 +55,7 @@ public class KafkaProducer {
                 this.executorService.submit(new ProducerExecutor(this, this.config, callback));
             }
         } catch (Exception ex) {
-            this.logger.error(ex);
+            System.err.println(ex);
             return false;
         }
 
@@ -84,7 +84,7 @@ public class KafkaProducer {
                 }
             }
         } catch (Exception ex) {
-            this.logger.error(ex);
+            System.err.println(ex);
             return false;
         }
 

@@ -1,9 +1,7 @@
 package com.madhouse.kafkaclient.consumer;
 
 import com.madhouse.kafkaclient.util.KafkaCallback;
-import com.madhouse.util.KeyValuePair;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -13,10 +11,9 @@ import java.util.concurrent.Executors;
  * Created by WUJUNFENG on 2017/5/9.
  */
 public class KafkaConsumer {
-    private List<KeyValuePair<String, Integer>> brokers;
+    private List<Pair<String, Integer>> brokers;
     private String groupId;
     private Map<String, ExecutorService> executorServiceMap;
-    private Logger logger = LogManager.getLogger(this.getClass());
 
     public KafkaConsumer(String brokers, String groupId) {
         this.brokers = new LinkedList<>();
@@ -24,7 +21,7 @@ public class KafkaConsumer {
 
         for (String host : hosts) {
             String[] addr = host.split(":");
-            this.brokers.add(new KeyValuePair<>(addr[0], Integer.parseInt(addr[1])));
+            this.brokers.add(Pair.of(addr[0], Integer.parseInt(addr[1])));
         }
 
         this.groupId = groupId;

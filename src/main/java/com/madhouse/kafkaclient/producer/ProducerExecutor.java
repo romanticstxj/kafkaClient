@@ -9,7 +9,6 @@ import com.madhouse.kafkaclient.util.KafkaMessage;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
-import org.apache.logging.log4j.*;
 
 /**
  * Created by WUJUNFENG on 2017/5/9.
@@ -18,9 +17,7 @@ public class ProducerExecutor implements Runnable {
     private KafkaProducer handle;
     private Producer producer;
     private ProducerConfig config;
-    private Properties props;
     private KafkaCallback callback;
-    private Logger logger = LogManager.getLogger(this.getClass());
 
     ProducerExecutor(KafkaProducer handle, ProducerConfig config, KafkaCallback callback) {
         this.handle = handle;
@@ -52,7 +49,7 @@ public class ProducerExecutor implements Runnable {
                     this.callback.onSendError(messageQueue);
                 }
 
-                this.logger.error(ex);
+                System.err.println(ex);
             }
         }
     }

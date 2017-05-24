@@ -1,7 +1,6 @@
 package com.madhouse.kafkaclient.consumer;
 
 import com.madhouse.kafkaclient.util.KafkaCallback;
-import com.madhouse.util.KeyValuePair;
 import kafka.api.FetchRequest;
 import kafka.api.FetchRequestBuilder;
 import kafka.api.PartitionOffsetRequestInfo;
@@ -12,8 +11,7 @@ import kafka.common.TopicAndPartition;
 import kafka.javaapi.*;
 import kafka.javaapi.consumer.SimpleConsumer;
 import kafka.message.MessageAndOffset;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -24,7 +22,7 @@ import java.util.Map;
  * Created by WUJUNFENG on 2017/5/9.
  */
 public class ConsumerExecutor implements Runnable {
-    private List<KeyValuePair<String, Integer>> brokers;
+    private List<Pair<String, Integer>> brokers;
     private String topic;
     private int partition;
     private int soTimeout;
@@ -34,9 +32,8 @@ public class ConsumerExecutor implements Runnable {
     private String groupId;
     private String clientName;
     private KafkaCallback callback;
-    private Logger logger = LogManager.getLogger(this.getClass());
 
-    public ConsumerExecutor(List<KeyValuePair<String, Integer>> brokers, String groupId, String topic, int partition, int maxBufferSize, KafkaCallback callback) {
+    public ConsumerExecutor(List<Pair<String, Integer>> brokers, String groupId, String topic, int partition, int maxBufferSize, KafkaCallback callback) {
         this.brokers = brokers;
         this.topic = topic;
         this.soTimeout = 30000;
@@ -59,10 +56,10 @@ public class ConsumerExecutor implements Runnable {
         while (!Thread.interrupted()) {
             try {
                 if (consumer == null) {
-                    KeyValuePair<String, Integer> leader = this.findLeader();
+                    Pair<String, Integer> leader = this.findLeader();
                     if (leader != null) {
                         retryTimes = 0;
-                        consumer = new SimpleConsumer(leader.first, leader.second, this.soTimeout, this.maxBufferSize, this.clientName);
+                        consumer = new SimpleConsumer(leader.getLeft(), leader.getRight(), this.soTimeout, this.maxBufferSize, this.clientName);
                         if ((lastOffset = this.getLastOffset(consumer, this.groupId)) <= 0) {
                             lastOffset = this.getLastOffset(consumer, kafka.api.OffsetRequest.EarliestTime());
                         }
@@ -88,7 +85,7 @@ public class ConsumerExecutor implements Runnable {
                     if (code != ErrorMapping.OffsetOutOfRangeCode()) {
                         consumer.close();
                         consumer = null;
-                        this.logger.error("consumer groupid=[{}] topic=[{}] partition=[{}] offset=[{}] executor error[{}].", this.groupId, this.topic, this.partition, lastOffset, code);
+                        System.err.println(String.format("consumer groupid=[%s] topic=[%s] partition=[%d] offset=[%d] executor error[%d].", this.groupId, this.topic, this.partition, lastOffset, code));
                     } else {
                         long earliestOffset = this.getLastOffset(consumer, kafka.api.OffsetRequest.EarliestTime());
                         if (lastOffset < earliestOffset) {
@@ -118,7 +115,7 @@ public class ConsumerExecutor implements Runnable {
                     }
                 }
             } catch (Exception ex) {
-                this.logger.error(ex);
+                System.err.println(ex);
             }
         }
 
@@ -126,13 +123,13 @@ public class ConsumerExecutor implements Runnable {
             consumer.close();
         }
 
-        this.logger.error("consumer groupid=[{}] topic=[{}] partition=[{}] offset=[{}] executor exit.", this.groupId, this.topic, this.partition, lastOffset);
+        System.err.println(String.format("consumer groupid=[%s] topic=[%s] partition=[%d] offset=[%d] executor exit.", this.groupId, this.topic, this.partition, lastOffset));
     }
 
-    private KeyValuePair<String, Integer> findLeader() {
-        for (KeyValuePair<String, Integer> broker : brokers) {
+    private Pair<String, Integer> findLeader() {
+        for (Pair<String, Integer> broker : brokers) {
             try {
-                SimpleConsumer consumer = new SimpleConsumer(broker.first, broker.second, this.soTimeout, this.maxBufferSize, "leaderLookup");
+                SimpleConsumer consumer = new SimpleConsumer(broker.getLeft(), broker.getRight(), this.soTimeout, this.maxBufferSize, "leaderLookup");
                 TopicMetadataRequest req = new TopicMetadataRequest(Collections.singletonList(this.topic));
                 kafka.javaapi.TopicMetadataResponse resp = consumer.send(req);
 
@@ -140,12 +137,12 @@ public class ConsumerExecutor implements Runnable {
                 for (TopicMetadata topicMeta : metaData) {
                     for (kafka.javaapi.PartitionMetadata partitionMeta : topicMeta.partitionsMetadata()) {
                         if (partitionMeta.partitionId() == this.partition && partitionMeta.leader() != null) {
-                            return new KeyValuePair<>(partitionMeta.leader().host(), partitionMeta.leader().port());
+                            return Pair.of(partitionMeta.leader().host(), partitionMeta.leader().port());
                         }
                     }
                 }
             } catch (Exception ex) {
-                this.logger.error(ex);
+                System.err.println(ex);
             }
         }
 
@@ -167,7 +164,7 @@ public class ConsumerExecutor implements Runnable {
             }
         }
 
-        this.logger.warn("get groupid=[{}] topic=[{}] partition=[{}] last offset error.", this.groupId, this.topic, this.partition);
+        System.err.println(String.format("get groupid=[%s] topic=[%s] partition=[%d] last offset error.", this.groupId, this.topic, this.partition));
         return 0;
     }
 
@@ -183,7 +180,7 @@ public class ConsumerExecutor implements Runnable {
             return offsets[0];
         }
 
-        this.logger.warn("get groupid=[{}] topic=[{}] partition=[{}] last offset error.", this.groupId, this.topic, this.partition);
+        System.err.println(String.format("get groupid=[%s] topic=[%s] partition=[%d] last offset error.", this.groupId, this.topic, this.partition));
         return 0;
     }
 
@@ -198,7 +195,7 @@ public class ConsumerExecutor implements Runnable {
             return true;
         }
 
-        this.logger.error("update groupid=[{}] topic=[{}] partition=[{}] offset=[{}] last offset error.", this.groupId, this.topic, this.partition, offset);
+        System.err.println(String.format("update groupid=[%s] topic=[%s] partition=[%d] offset=[%d] last offset error.", this.groupId, this.topic, this.partition, offset));
         return false;
     }
 }
