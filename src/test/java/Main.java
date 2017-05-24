@@ -25,7 +25,7 @@ public class Main {
             }
         });
 
-/*        KafkaProducer producer = new KafkaProducer("172.16.25.169:9092,172.16.25.180:9092,172.16.25.181:9092", 102400, 5, true);
+/*        KafkaProducer producer = new KafkaProducer("172.16.25.169:9092,172.16.25.180:9092,172.16.25.181:9092", 102400, 5, null);
 
         long count = 0;
         String message = "tttttttt";
@@ -45,7 +45,6 @@ public class Main {
             } catch (Exception ex) {
                 System.out.println(ex.toString());
             }
-
         }*/
 
     }
