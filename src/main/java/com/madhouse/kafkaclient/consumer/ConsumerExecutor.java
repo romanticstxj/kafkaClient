@@ -4,6 +4,7 @@ import com.madhouse.kafkaclient.util.KafkaCallback;
 import kafka.api.FetchRequest;
 import kafka.api.FetchRequestBuilder;
 import kafka.api.PartitionOffsetRequestInfo;
+import kafka.cluster.Broker;
 import kafka.common.ErrorMapping;
 import kafka.common.OffsetAndMetadata;
 import kafka.common.OffsetMetadataAndError;
@@ -13,16 +14,15 @@ import kafka.javaapi.consumer.SimpleConsumer;
 import kafka.message.MessageAndOffset;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by WUJUNFENG on 2017/5/9.
  */
 public class ConsumerExecutor implements Runnable {
     private List<Pair<String, Integer>> brokers;
+    private List<Pair<String, Integer>> replicas;
+
     private String topic;
     private int partition;
     private int soTimeout;
@@ -43,6 +43,8 @@ public class ConsumerExecutor implements Runnable {
         this.partition = partition;
         this.callback = callback;
         this.groupId = groupId;
+        this.replicas = new LinkedList<>();
+
         this.clientName = String.format("%s-%s-%d", this.groupId, this.topic, this.partition);
     }
 
@@ -127,6 +129,8 @@ public class ConsumerExecutor implements Runnable {
     }
 
     private Pair<String, Integer> findLeader() {
+        List<Pair<String, Integer>> brokers = this.replicas.isEmpty() ? this.brokers : this.replicas;
+
         for (Pair<String, Integer> broker : brokers) {
             try {
                 SimpleConsumer consumer = new SimpleConsumer(broker.getLeft(), broker.getRight(), this.soTimeout, this.maxBufferSize, "leaderLookup");
@@ -137,6 +141,12 @@ public class ConsumerExecutor implements Runnable {
                 for (TopicMetadata topicMeta : metaData) {
                     for (kafka.javaapi.PartitionMetadata partitionMeta : topicMeta.partitionsMetadata()) {
                         if (partitionMeta.partitionId() == this.partition && partitionMeta.leader() != null) {
+                            if (partitionMeta.replicas() != null && this.replicas.isEmpty()) {
+                                for (Broker replica : partitionMeta.replicas()) {
+                                    this.replicas.add(Pair.of(replica.host(), replica.port()));
+                                }
+                            }
+
                             return Pair.of(partitionMeta.leader().host(), partitionMeta.leader().port());
                         }
                     }
