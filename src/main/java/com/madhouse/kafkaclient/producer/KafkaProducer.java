@@ -62,14 +62,6 @@ public class KafkaProducer {
         return true;
     }
 
-    public boolean sendMessage(String topic, byte[] message) {
-        return this.sendMessage(topic, this.autoPartitioner ? Long.toString(System.currentTimeMillis()) : null, new String(message));
-    }
-
-    public boolean sendMessage(String topic, String key, byte[] message) {
-        return this.sendMessage(topic, key, new String(message));
-    }
-
     public boolean sendMessage(String topic, String message) {
         return this.sendMessage(topic, this.autoPartitioner ? Long.toString(System.currentTimeMillis()) : null, message);
     }

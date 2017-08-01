@@ -12,8 +12,9 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) {
 
-        KafkaConsumer consumer = new KafkaConsumer("172.16.25.169:9092,172.16.25.180:9092,172.16.25.181:9092", "test");
+        String brokers = "172.16.25.169:9092,172.16.25.180:9092,172.16.25.181:9092";
 
+        KafkaConsumer consumer = new KafkaConsumer(brokers, "test");
         consumer.start("test", 7, 102400, new KafkaCallback() {
             @Override
             public boolean onFetch(String topic, int partition, long offset, ByteBuffer message) {
@@ -25,7 +26,7 @@ public class Main {
             }
         });
 
-/*        KafkaProducer producer = new KafkaProducer("172.16.25.169:9092,172.16.25.180:9092,172.16.25.181:9092", 102400, 5, null);
+        KafkaProducer producer = new KafkaProducer(brokers, 102400, 5, null);
 
         long count = 0;
         String message = "tttttttt";
@@ -45,7 +46,7 @@ public class Main {
             } catch (Exception ex) {
                 System.out.println(ex.toString());
             }
-        }*/
+        }
 
     }
 }
