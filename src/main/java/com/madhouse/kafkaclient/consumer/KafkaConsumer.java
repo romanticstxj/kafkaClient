@@ -34,7 +34,7 @@ public class KafkaConsumer {
     }
 
     public boolean start(String topic, KafkaCallback callback) {
-        if (topic == null) {
+        if (topic == null || topic.isEmpty() || callback == null) {
             return false;
         }
 
