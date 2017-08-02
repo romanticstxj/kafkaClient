@@ -5,9 +5,8 @@ package com.madhouse.kafkaclient.producer;
  */
 
 import com.madhouse.kafkaclient.util.KafkaCallback;
-import kafka.producer.Partitioner;
-import kafka.producer.ProducerConfig;
 import com.madhouse.kafkaclient.util.KafkaMessage;
+import org.apache.kafka.clients.producer.Partitioner;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -21,29 +20,21 @@ public class KafkaProducer {
     private ExecutorService executorService;
     private List<KafkaMessage> messageQueue;
     private Properties props;
-    private ProducerConfig config;
-    private boolean autoPartitioner = true;
 
-    public KafkaProducer(String brokers, int maxBufferSize, int maxThreadCount, Partitioner partitioner) {
+    public KafkaProducer(String brokers, int maxThreadCount, Partitioner partitioner) {
 
         this.maxThreadCount = maxThreadCount;
 
         this.props = new Properties();
-        this.props.put("metadata.broker.list", brokers);
-        this.props.put("send.buffer.bytes", Integer.toString(maxBufferSize));
-        this.props.put("message.send.max.retries", "3");
-        this.props.put("serializer.class", "kafka.serializer.StringEncoder");
-        this.props.put("request.required.acks", "1");
-        this.props.put("batch.num.messages", "1024");
-        this.props.put("queue.buffering.max.ms", "100");
-        this.props.put("producer.type", "async");
+        this.props.put("bootstrap.servers", brokers);
+        this.props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        this.props.put("value.serializer", "org.apache.kafka.common.serialization.ByteArraySerializer");
+        this.props.put("acks", "1");
+        this.props.put("retries", 3);
 
         if (partitioner != null) {
-            autoPartitioner = false;
-            this.props.put("partitioner.class",partitioner.getClass().getName());
+            this.props.put("partitioner.class", partitioner.getClass().getName());
         }
-
-        this.config = new ProducerConfig(this.props);
 
         this.messageQueue = new LinkedList<>();
         this.executorService = Executors.newFixedThreadPool(this.maxThreadCount);
@@ -52,7 +43,7 @@ public class KafkaProducer {
     public boolean start(KafkaCallback callback) {
         try {
             for (int i = 0; i < this.maxThreadCount; ++i) {
-                this.executorService.submit(new ProducerExecutor(this, this.config, callback));
+                this.executorService.submit(new ProducerExecutor(this, this.props, callback));
             }
         } catch (Exception ex) {
             System.err.println(ex);
@@ -62,11 +53,11 @@ public class KafkaProducer {
         return true;
     }
 
-    public boolean sendMessage(String topic, String message) {
-        return this.sendMessage(topic, this.autoPartitioner ? Long.toString(System.currentTimeMillis()) : null, message);
+    public boolean sendMessage(String topic, byte[] message) {
+        return this.sendMessage(topic, Long.toString(System.currentTimeMillis()), message);
     }
 
-    public boolean sendMessage(String topic, String key, String message) {
+    public boolean sendMessage(String topic, String key, byte[] message) {
         try {
             synchronized (this) {
                 if (this.messageQueue != null) {

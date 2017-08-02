@@ -6,9 +6,9 @@ package com.madhouse.kafkaclient.util;
 public class KafkaMessage {
     public String topic;
     public String key;
-    public String message;
+    public byte[] message;
 
-    public KafkaMessage(String topic, String key, String message) {
+    public KafkaMessage(String topic, String key, byte[] message) {
         this.topic = topic;
         this.key = key;
         this.message = message;

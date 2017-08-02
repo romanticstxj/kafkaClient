@@ -11,25 +11,18 @@ import java.util.concurrent.Executors;
  * Created by WUJUNFENG on 2017/5/9.
  */
 public class KafkaConsumer {
-    private List<Pair<String, Integer>> brokers;
+    private String brokers;
     private String groupId;
     private Map<String, ExecutorService> executorServiceMap;
 
     public KafkaConsumer(String brokers, String groupId) {
-        this.brokers = new LinkedList<>();
-        List<String> hosts = Arrays.asList(brokers.split(","));
-
-        for (String host : hosts) {
-            String[] addr = host.split(":");
-            this.brokers.add(Pair.of(addr[0], Integer.parseInt(addr[1])));
-        }
-
+        this.brokers = brokers;
         this.groupId = groupId;
         this.executorServiceMap = new HashMap<>();
     }
 
-    public boolean start(String topic, int partitions, int maxBufferSize, KafkaCallback callback) {
-        if (topic == null || partitions <= 0 || maxBufferSize <= 0) {
+    public boolean start(String topic, KafkaCallback callback) {
+        if (topic == null) {
             return false;
         }
 
@@ -37,10 +30,8 @@ public class KafkaConsumer {
             return false;
         }
 
-        ExecutorService executorService = Executors.newFixedThreadPool(partitions);
-        for (int i = 0; i < partitions; ++i) {
-            executorService.submit(new ConsumerExecutor(this.brokers, this.groupId, topic, i, maxBufferSize, callback));
-        }
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        executorService.submit(new ConsumerExecutor(this.brokers, this.groupId, topic, callback));
 
         this.executorServiceMap.put(topic, executorService);
         return true;
