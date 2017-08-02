@@ -10,7 +10,6 @@ import java.util.*;
  * Created by WUJUNFENG on 2017/5/9.
  */
 public class ConsumerExecutor implements Runnable {
-    private String brokers;
     private String topic;
     private String groupId;
     private Properties props;
@@ -18,22 +17,12 @@ public class ConsumerExecutor implements Runnable {
     private KafkaCallback callback;
     private org.apache.kafka.clients.consumer.KafkaConsumer consumer;
 
-    public ConsumerExecutor(String brokers, String groupId, String topic, KafkaCallback callback) {
-        this.brokers = brokers;
+    public ConsumerExecutor(Properties props, String groupId, String topic, KafkaCallback callback) {
+        this.props = props;
+        this.groupId = groupId;
         this.topic = topic;
         this.callback = callback;
-        this.groupId = groupId;
         this.lastOffset = -1;
-
-        this.props = new Properties();
-        this.props.put("bootstrap.servers", this.brokers);
-        this.props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-        this.props.put("value.deserializer", "org.apache.kafka.common.serialization.ByteArrayDeserializer");
-        this.props.put("group.id", this.groupId);
-        this.props.put("enable.auto.commit", false);
-        this.props.put("auto.offset.reset", "earliest");
-        this.props.put("heartbeat.interval.ms", 3000);
-        this.props.put("session.timeout.ms", 30000);
 
         this.consumer = new KafkaConsumer(this.props);
     }
