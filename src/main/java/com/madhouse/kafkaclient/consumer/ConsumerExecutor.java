@@ -13,7 +13,6 @@ public class ConsumerExecutor implements Runnable {
     private String topic;
     private String groupId;
     private Properties props;
-    private long lastOffset;
     private KafkaCallback callback;
     private org.apache.kafka.clients.consumer.KafkaConsumer consumer;
 
@@ -22,7 +21,6 @@ public class ConsumerExecutor implements Runnable {
         this.groupId = groupId;
         this.topic = topic;
         this.callback = callback;
-        this.lastOffset = -1;
 
         this.consumer = new KafkaConsumer(this.props);
     }
@@ -33,13 +31,14 @@ public class ConsumerExecutor implements Runnable {
 
         while (!Thread.interrupted()) {
             try {
+                boolean commit = true;
                 ConsumerRecords<String, byte[]> records = this.consumer.poll(500);
                 for (ConsumerRecord record : records) {
-                    if (this.callback.onFetch(record.topic(), record.partition(), record.offset(), (byte[])(record.value()))) {
-                        this.consumer.commitAsync();
-                    }
+                    commit = commit && this.callback.onFetch(record.topic(), record.partition(), record.offset(), (byte[])(record.value()));
+                }
 
-                    this.lastOffset = record.offset();
+                if (!records.isEmpty() && commit) {
+                    this.consumer.commitAsync();
                 }
             } catch (Exception e) {
                 System.err.println(e.toString());
@@ -47,7 +46,7 @@ public class ConsumerExecutor implements Runnable {
             }
         }
 
-        System.err.println(String.format("consumer groupid=[%s] topic=[%s] offset=[%d] executor exit.", this.groupId, this.topic, lastOffset));
+        System.err.println(String.format("consumer groupid=[%s] topic=[%s] executor exit.", this.groupId, this.topic));
     }
 
 }
