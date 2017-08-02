@@ -46,7 +46,7 @@ public class ConsumerExecutor implements Runnable {
             try {
                 ConsumerRecords<String, byte[]> records = this.consumer.poll(500);
                 for (ConsumerRecord record : records) {
-                    if (this.callback.onFetch(record.topic(), record.partition(), record.offset(), (byte[]) record.value())) {
+                    if (this.callback.onFetch(record.topic(), record.partition(), record.offset(), (byte[])(record.value()))) {
                         this.consumer.commitAsync();
                     }
 
