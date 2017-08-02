@@ -1,17 +1,13 @@
 import com.madhouse.kafkaclient.consumer.KafkaConsumer;
 import com.madhouse.kafkaclient.producer.KafkaProducer;
+import com.madhouse.kafkaclient.producer.ProducerExecutor;
 import com.madhouse.kafkaclient.util.KafkaCallback;
 import com.madhouse.kafkaclient.util.KafkaMessage;
-import org.apache.kafka.clients.producer.Partitioner;
-import org.apache.kafka.common.Cluster;
-
-import java.nio.ByteBuffer;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Created by WUJUNFENG on 2017/5/9.
  */
+
 public class Main {
     public static void main(String[] args) {
         String gourpId = "test";
@@ -43,7 +39,7 @@ public class Main {
             try {
                 while (true) {
                     String message = "tttttttt" + count;
-                    producer.sendMessage(topic, message, message.getBytes());
+                    producer.sendMessage(topic, message.getBytes());
                     count++;
                     Thread.sleep(100);
                 }
