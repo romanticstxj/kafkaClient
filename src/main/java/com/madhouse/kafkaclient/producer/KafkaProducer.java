@@ -42,15 +42,17 @@ public class KafkaProducer {
 
     public boolean start(KafkaCallback callback) {
         try {
-            for (int i = 0; i < this.maxThreadCount; ++i) {
-                this.executorService.submit(new ProducerExecutor(this, this.props, callback));
+            if (callback != null && this.maxThreadCount > 0) {
+                for (int i = 0; i < this.maxThreadCount; ++i) {
+                    this.executorService.submit(new ProducerExecutor(this, this.props, callback));
+                }
+                return true;
             }
         } catch (Exception ex) {
             System.err.println(ex);
-            return false;
         }
 
-        return true;
+        return false;
     }
 
     public boolean sendMessage(String topic, byte[] message) {

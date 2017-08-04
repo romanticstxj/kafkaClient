@@ -47,10 +47,9 @@ public class ProducerExecutor implements Runnable {
                     Thread.sleep(10);
                 }
             } catch (Exception ex) {
-                if (messageQueue != null && !messageQueue.isEmpty() && this.callback != null) {
+                if (messageQueue != null && !messageQueue.isEmpty()) {
                     this.callback.onCompletion(null, ex);
                 }
-
                 System.err.println(ex);
             }
         }
